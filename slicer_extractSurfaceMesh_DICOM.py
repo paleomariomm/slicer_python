@@ -48,17 +48,17 @@ for dir in os.scandir(yourpath):
     cropVolumeLogic.Apply(cropVolumeParameterNode)
     croppedVolume = slicer.mrmlScene.GetNodeByID(cropVolumeParameterNode.GetOutputVolumeNodeID())
     
-    # SEGMENTATION THRESHOLDING
+    # SEGMENTATION
     # Start the segmentation subroutine (threshold + island tools + smoothing and morphological closing)
     # https://gist.github.com/lassoan/1673b25d8e7913cbc245b4f09ed853f9
     
-      # Create segmentation
+    # Create segmentation
     segmentationNode = slicer.mrmlScene.AddNewNodeByClass("vtkMRMLSegmentationNode")
     segmentationNode.CreateDefaultDisplayNodes() # only needed for display
     segmentationNode.SetReferenceImageGeometryParameterFromVolumeNode(croppedVolume)
     addedSegmentID = segmentationNode.GetSegmentation().AddEmptySegment(baboon_skull)
     
-      # Create segment editor to get access to effects
+    # Create segment editor to get access to effects
     segmentEditorWidget = slicer.qMRMLSegmentEditorWidget()
     segmentEditorWidget.setMRMLScene(slicer.mrmlScene)
     segmentEditorNode = slicer.mrmlScene.AddNewNodeByClass("vtkMRMLSegmentEditorNode")
@@ -66,23 +66,30 @@ for dir in os.scandir(yourpath):
     segmentEditorWidget.setSegmentationNode(segmentationNode)
     segmentEditorWidget.setMasterVolumeNode(croppedVolume)
     
-      # Thresholding
+    # Segmentation: Thresholding
     segmentEditorWidget.setActiveEffectByName("Threshold")
     effect = segmentEditorWidget.activeEffect()
     effect.setParameter("MinimumThreshold","60")
     effect.setParameter("MaximumThreshold","3071")
     effect.self().onApply()
-    
-    # Systematically remove small islands
+
+    # Segmentation: Systematically remove small islands
     # https://discourse.slicer.org/t/islands-segmentation-via-python-script/21021
-    # segmentEditorNode.SetSelectedSegmentID("segmentationNode")
-    # segmentEditorWidget.setActiveEffectByName("Islands")
-    # effect = segmentEditorWidget.activeEffect()
-    # effect.setParameter("MinimumSize","1000")
-    # effect.setParameter("Operation","KEEP_LARGEST_ISLAND")
-    # segmentEditorNode.SetOverwriteMode(slicer.vtkMRMLSegmentEditorNode.OverwriteNone) 
-    # segmentEditorNode.SetMaskMode(slicer.vtkMRMLSegmentEditorNode.PaintAllowedEverywhere)  
-    # effect.self().onApply()
+    segmentEditorNode.SetSelectedSegmentID("segmentationNode")
+    segmentEditorWidget.setActiveEffectByName("Islands")
+    effect = segmentEditorWidget.activeEffect()
+    effect.setParameter("MinimumSize","1000")
+    effect.setParameter("Operation","KEEP_LARGEST_ISLAND")
+    segmentEditorNode.SetOverwriteMode(slicer.vtkMRMLSegmentEditorNode.OverwriteNone) 
+    segmentEditorNode.SetMaskMode(slicer.vtkMRMLSegmentEditorNode.PaintAllowedEverywhere)  
+    effect.self().onApply()
+
+    # Segmentation: Smoothing
+    # segmentEditorWidget.setActiveEffectByName("Smoothing") 
+    # effect = segmentEditorWidget.activeEffect() 
+    # effect.setParameter("SmoothingMethod", "CLOSING") 
+    # effect.setParameter("KernelSizeMm", 12) 
+    #  effect.self().onApply()
     
     # Clean up
     segmentEditorWidget = None
