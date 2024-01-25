@@ -1,23 +1,11 @@
-# FOR LOOP
-# https://stackoverflow.com/questions/77865010/run-python-script-in-each-subfolder-automatically
-
-# For (I in volumes) 
-#                 Vol = read.volume (this will change everytime)
-#                 Roi = read.ROI (this is a fixed ROI)
-#                 Do the cropping and assign a new volume node (or even overwrite it)
-#                 Start the segmentation subroutine (threshold + island tools + smoothing and morphological closing)
-#                 Export the segmentation as a 3D object and save it as PLY/OBJ file 
-#                 Optionally save the cropped volume
-#                 Reset the scene
-
-
 import os
 from DICOMLib import DICOMUtils
 
 yourpath = r"C:/Users/mario.modesto/Desktop/DICOM"
 # yourpath = r"//clscidat.cenieh.local/TIED2-TEETH/AIM_1_QuantGen/Baboons/CT Scans/W101-W200"
 
-#walk through DICOM directory
+# walk through DICOM directory
+# https://stackoverflow.com/questions/77865010/run-python-script-in-each-subfolder-automatically
 for dir in os.scandir(yourpath):
     # Load DICOM files
     dicomDataDir = dir.path  # path to input folder with DICOM files
@@ -61,6 +49,7 @@ for dir in os.scandir(yourpath):
     croppedVolume = slicer.mrmlScene.GetNodeByID(cropVolumeParameterNode.GetOutputVolumeNodeID())
     
     # SEGMENTATION THRESHOLDING
+    # Start the segmentation subroutine (threshold + island tools + smoothing and morphological closing)
     # https://gist.github.com/lassoan/1673b25d8e7913cbc245b4f09ed853f9
     
       # Create segmentation
