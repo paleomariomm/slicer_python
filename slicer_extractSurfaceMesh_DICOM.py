@@ -25,37 +25,13 @@ for dir in os.scandir(yourpath):
     logic = slicer.modules.volumerendering.logic()
     volumeNode = slicer.mrmlScene.GetNodeByID('vtkMRMLScalarVolumeNode1')
     
-    # CROPPING
-    #create a blank Markup ROI
-    roiNode = slicer.mrmlScene.AddNewNodeByClass("vtkMRMLMarkupsROINode")
-    # https://discourse.slicer.org/t/fix-size-in-cropped-volume/21114/3
-    roiNode.SetName("R")
-    # this gets the ROI node and assigns it to a variable
-    roiNode = slicer.util.getNode('R')
-    # Set the sizes you want the ROI here. Change the numbers to suit your application
-    radius = [100,350,155] #ancho,largo,altura
-    # This sets the ROI size to the dimensions specified above
-    roiNode.SetRadiusXYZ(radius)
-    
-    # Set parameters
-    cropVolumeLogic = slicer.modules.cropvolume.logic()
-    cropVolumeParameterNode = slicer.vtkMRMLCropVolumeParametersNode()
-    cropVolumeParameterNode.SetROINodeID(roiNode.GetID())
-    cropVolumeParameterNode.SetInputVolumeNodeID(volumeNode.GetID())
-    cropVolumeParameterNode.SetIsotropicResampling(True)
-    
-    # Apply cropping
-    cropVolumeLogic.Apply(cropVolumeParameterNode)
-    croppedVolume = slicer.mrmlScene.GetNodeByID(cropVolumeParameterNode.GetOutputVolumeNodeID())
-    
     # SEGMENTATION
-    # Start the segmentation subroutine (threshold + island tools + smoothing and morphological closing)
     # https://gist.github.com/lassoan/1673b25d8e7913cbc245b4f09ed853f9
     
     # Create segmentation
     segmentationNode = slicer.mrmlScene.AddNewNodeByClass("vtkMRMLSegmentationNode")
     segmentationNode.CreateDefaultDisplayNodes() # only needed for display
-    segmentationNode.SetReferenceImageGeometryParameterFromVolumeNode(croppedVolume)
+    segmentationNode.SetReferenceImageGeometryParameterFromVolumeNode(volumeNode)
     addedSegmentID = segmentationNode.GetSegmentation().AddEmptySegment(baboon_skull)
     
     # Create segment editor to get access to effects
@@ -64,7 +40,7 @@ for dir in os.scandir(yourpath):
     segmentEditorNode = slicer.mrmlScene.AddNewNodeByClass("vtkMRMLSegmentEditorNode")
     segmentEditorWidget.setMRMLSegmentEditorNode(segmentEditorNode)
     segmentEditorWidget.setSegmentationNode(segmentationNode) # (yourOutputSegmentation)
-    segmentEditorWidget.setMasterVolumeNode(croppedVolume)    # (yourVolume)
+    segmentEditorWidget.setMasterVolumeNode(volumeNode)    # (yourVolume)
     
     # Segmentation: Thresholding
     segmentEditorWidget.setActiveEffectByName("Threshold")
@@ -82,10 +58,11 @@ for dir in os.scandir(yourpath):
     effect.self().onApply()
 
     # Segmentation: Smoothing
-    # segmentEditorWidget.setActiveEffectByName("Smoothing") 
-    # effect = segmentEditorWidget.activeEffect() 
-    # effect.setParameter("Median", "CLOSING") 
-    # effect.setParameter("KernelSizeMm", 12) 
+    # https://discourse.slicer.org/t/how-to-use-segment-editor-effects-from-python-script/20815
+    # segmentEditorWidget.setActiveEffectByName("Smoothing")
+    # effect = segmentEditorWidget.activeEffect()
+    # effect.setParameter("SmoothingMethod", "CLOSING") #"Median"
+    # effect.setParameter("KernelSizeMm", 12)
     # effect.self().onApply()
     
     # Clean up
@@ -95,13 +72,11 @@ for dir in os.scandir(yourpath):
     # Make segmentation results visible in 3D
     segmentationNode.CreateClosedSurfaceRepresentation()
     
-    # Crear surface mesh y exportar en PLY
+    # SURFACE MESH CREATION
     # https://discourse.slicer.org/t/load-segmentation-and-export-surface-mesh-as-model-ply/2646/10?u=paleomariomm
-    
     surfaceMesh = segmentationNode.GetClosedSurfaceInternalRepresentation(addedSegmentID)
     writer = vtk.vtkPLYWriter()
     writer.SetInputData(surfaceMesh)
     writer.SetFileName(fr"{dicomDataDir}_surfaceMesh.ply")
-    # writer.SetFileName("C:/Users/mario.modesto/Desktop/DICOM/"+baboon_skull+"_surfaceMesh.ply")
     writer.Update()
     slicer.mrmlScene.Clear(0)
