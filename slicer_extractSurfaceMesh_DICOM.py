@@ -24,6 +24,10 @@ for dir in os.scandir(yourpath):
     # https://slicer.readthedocs.io/en/latest/developer_guide/script_repository.html#display-volume-using-volume-rendering
     logic = slicer.modules.volumerendering.logic()
     volumeNode = slicer.mrmlScene.GetNodeByID('vtkMRMLScalarVolumeNode1')
+
+    # Cropping to increase sample size
+    # https://discourse.slicer.org/t/how-to-increase-the-segmentation-resolution/22981
+    # https://slicer.readthedocs.io/en/latest/user_guide/modules/segmenteditor.html#segmentation-is-not-accurate-enough
     
     # SEGMENTATION
     # https://gist.github.com/lassoan/1673b25d8e7913cbc245b4f09ed853f9
@@ -40,12 +44,12 @@ for dir in os.scandir(yourpath):
     segmentEditorNode = slicer.mrmlScene.AddNewNodeByClass("vtkMRMLSegmentEditorNode")
     segmentEditorWidget.setMRMLSegmentEditorNode(segmentEditorNode)
     segmentEditorWidget.setSegmentationNode(segmentationNode) # (yourOutputSegmentation)
-    segmentEditorWidget.setMasterVolumeNode(volumeNode)    # (yourVolume)
+    segmentEditorWidget.setMasterVolumeNode(volumeNode)       # (yourVolume)
     
     # Segmentation: Thresholding
     segmentEditorWidget.setActiveEffectByName("Threshold")
     effect = segmentEditorWidget.activeEffect()
-    effect.setParameter("MinimumThreshold","60")
+    effect.setParameter("MinimumThreshold","100")
     effect.setParameter("MaximumThreshold","3071")
     effect.self().onApply()
 
@@ -54,15 +58,15 @@ for dir in os.scandir(yourpath):
     segmentEditorWidget.setActiveEffectByName("Islands")
     effect = segmentEditorWidget.activeEffect()
     effect.setParameter("MinimumSize","1000")
-    effect.setParameter("Operation","KEEP_LARGEST_ISLAND")
+    # effect.setParameter("Operation","KEEP_LARGEST_ISLAND")
     effect.self().onApply()
 
     # Segmentation: Smoothing
     # https://discourse.slicer.org/t/how-to-use-segment-editor-effects-from-python-script/20815
     # segmentEditorWidget.setActiveEffectByName("Smoothing")
     # effect = segmentEditorWidget.activeEffect()
-    # effect.setParameter("SmoothingMethod", "CLOSING") #"Median"
-    # effect.setParameter("KernelSizeMm", 12)
+    # effect.setParameter("SmoothingMethod", "MEDIAN") #"CLOSING"
+    # effect.setParameter("KernelSizeVx", 3)
     # effect.self().onApply()
     
     # Clean up
