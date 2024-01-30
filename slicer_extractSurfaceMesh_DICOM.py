@@ -25,10 +25,11 @@ for dir in os.scandir(yourpath):
     logic = slicer.modules.volumerendering.logic()
     volumeNode = slicer.mrmlScene.GetNodeByID('vtkMRMLScalarVolumeNode1')
 
-    # Cropping to increase sample size
-    # https://discourse.slicer.org/t/how-to-increase-the-segmentation-resolution/22981
-    # https://slicer.readthedocs.io/en/latest/user_guide/modules/segmenteditor.html#segmentation-is-not-accurate-enough
-    
+    # Resample the volume
+    # https://discourse.slicer.org/t/segment-a-resampled-volume/11938/4
+    parameters = {"outputPixelSpacing":"1,1,1", "InputVolume":volumeNode,"interpolationType":'bspline',"OutputVolume":volumeNode}
+    slicer.cli.runSync(slicer.modules.resamplescalarvolume, None, parameters)
+ 
     # SEGMENTATION
     # https://gist.github.com/lassoan/1673b25d8e7913cbc245b4f09ed853f9
     
