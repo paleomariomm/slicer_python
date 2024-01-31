@@ -27,13 +27,11 @@ for dir in os.scandir(yourpath):
 
     # Resample the volume
     # https://discourse.slicer.org/t/segment-a-resampled-volume/11938/4
-    parameters = {"outputPixelSpacing":"1,1,1", "InputVolume":volumeNode,"interpolationType":'bspline',"OutputVolume":volumeNode}
-    slicer.cli.runSync(slicer.modules.resamplescalarvolume, None, parameters)
+    # parameters = {"outputPixelSpacing":"1,1,1", "InputVolume":volumeNode,"interpolationType":'bspline',"OutputVolume":volumeNode}
+    # slicer.cli.runSync(slicer.modules.resamplescalarvolume, None, parameters)
  
-    # SEGMENTATION
-    # https://gist.github.com/lassoan/1673b25d8e7913cbc245b4f09ed853f9
-    
     # Create segmentation
+    # https://gist.github.com/lassoan/1673b25d8e7913cbc245b4f09ed853f9
     segmentationNode = slicer.mrmlScene.AddNewNodeByClass("vtkMRMLSegmentationNode")
     segmentationNode.CreateDefaultDisplayNodes() # only needed for display
     segmentationNode.SetReferenceImageGeometryParameterFromVolumeNode(volumeNode)
@@ -58,8 +56,8 @@ for dir in os.scandir(yourpath):
     # https://discourse.slicer.org/t/islands-segmentation-via-python-script/21021
     segmentEditorWidget.setActiveEffectByName("Islands")
     effect = segmentEditorWidget.activeEffect()
-    effect.setParameter("MinimumSize","1000")
-    # effect.setParameter("Operation","KEEP_LARGEST_ISLAND")
+    effect.setParameter("MinimumSize","100000")
+    effect.setParameter("Operation","REMOVE_SMALL_ISLANDS") #  KEEP_LARGEST_ISLAND
     effect.self().onApply()
 
     # Segmentation: Smoothing
