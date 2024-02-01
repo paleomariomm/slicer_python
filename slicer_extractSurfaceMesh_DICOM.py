@@ -27,8 +27,8 @@ for dir in os.scandir(yourpath):
 
     # 3. Resample the volume
     # https://discourse.slicer.org/t/segment-a-resampled-volume/11938/4
-    # parameters = {"outputPixelSpacing":"1,1,1", "InputVolume":volumeNode,"interpolationType":'bspline',"OutputVolume":volumeNode}
-    # slicer.cli.runSync(slicer.modules.resamplescalarvolume, None, parameters)
+    parameters = {"outputPixelSpacing":"0.3,0.3,0.3", "InputVolume":volumeNode,"interpolationType":'bspline',"OutputVolume":volumeNode}
+    slicer.cli.runSync(slicer.modules.resamplescalarvolume, None, parameters)
  
     # 4. Create segmentation
     # https://gist.github.com/lassoan/1673b25d8e7913cbc245b4f09ed853f9
@@ -48,7 +48,7 @@ for dir in os.scandir(yourpath):
     # 4.2. Segmentation: Thresholding
     segmentEditorWidget.setActiveEffectByName("Threshold")
     effect = segmentEditorWidget.activeEffect()
-    effect.setParameter("MinimumThreshold","100")
+    effect.setParameter("MinimumThreshold","-300")
     effect.setParameter("MaximumThreshold","3071")
     effect.self().onApply()
 
