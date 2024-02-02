@@ -1,8 +1,8 @@
 import os
 from DICOMLib import DICOMUtils
 
-yourpath = r"C:/Users/mario.modesto/Desktop/DICOM"
-# yourpath = r"//clscidat.cenieh.local/TIED2-TEETH/AIM_1_QuantGen/Baboons/CT Scans/W101-W200"
+# yourpath = r"C:/Users/mario.modesto/Desktop/DICOM"
+yourpath = r"D:\Baboons\CT Scans\W001-W100"
 
 # walk through DICOM directory
 # https://stackoverflow.com/questions/77865010/run-python-script-in-each-subfolder-automatically
@@ -48,7 +48,7 @@ for dir in os.scandir(yourpath):
     # 4.2. Segmentation: Thresholding
     segmentEditorWidget.setActiveEffectByName("Threshold")
     effect = segmentEditorWidget.activeEffect()
-    effect.setParameter("MinimumThreshold","-300")
+    effect.setParameter("MinimumThreshold","-200")
     effect.setParameter("MaximumThreshold","3071")
     effect.self().onApply()
 
@@ -56,7 +56,7 @@ for dir in os.scandir(yourpath):
     # https://discourse.slicer.org/t/islands-segmentation-via-python-script/21021
     segmentEditorWidget.setActiveEffectByName("Islands")
     effect = segmentEditorWidget.activeEffect()
-    effect.setParameter("MinimumSize","100000")
+    effect.setParameter("MinimumSize","5000000")
     effect.setParameter("Operation","REMOVE_SMALL_ISLANDS") #  KEEP_LARGEST_ISLAND
     effect.self().onApply()
 
@@ -65,7 +65,7 @@ for dir in os.scandir(yourpath):
     # segmentEditorWidget.setActiveEffectByName("Smoothing")
     # effect = segmentEditorWidget.activeEffect()
     # effect.setParameter("SmoothingMethod", "MEDIAN") #"CLOSING"
-    # effect.setParameter("KernelSizeVx", 3)
+    # effect.setParameter("KernelSizeMm", 10)
     # effect.self().onApply()
     
     # 5. Clean up
