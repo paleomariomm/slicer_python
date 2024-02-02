@@ -2,7 +2,7 @@ import os
 from DICOMLib import DICOMUtils
 
 # yourpath = r"C:/Users/mario.modesto/Desktop/DICOM"
-yourpath = r"D:\Baboons\CT Scans\W001-W100"
+yourpath = r"D:/Baboons/CT Scans/W001-W100"
 
 # walk through DICOM directory
 # https://stackoverflow.com/questions/77865010/run-python-script-in-each-subfolder-automatically
