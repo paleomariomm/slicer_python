@@ -1,8 +1,8 @@
 import os
 from DICOMLib import DICOMUtils
 
-# yourpath = r"C:/Users/mario.modesto/Desktop/DICOM"
-yourpath = r"D:/Baboons/CT Scans/W001-W100"
+yourpath = r"C:/Users/mario.modesto/Desktop/TEST DICOM SLICE"
+# yourpath = r"D:/Baboons/slice"
 
 # walk through DICOM directory
 # https://stackoverflow.com/questions/77865010/run-python-script-in-each-subfolder-automatically
@@ -19,11 +19,20 @@ for dir in os.scandir(yourpath):
         patientUIDs = db.patients()
         for patientUID in patientUIDs:
             loadedNodeIDs.extend(DICOMUtils.loadPatientByUID(patientUID))
-    
+    # Next two lines introduced to know number which volumes and how many are
+    # This is important to "2. Load volume", the "if-else" statement
+    print(loadedNodeIDs)
+    print(len(loadedNodeIDs))
+
     # 2. Load volume
     # https://slicer.readthedocs.io/en/latest/developer_guide/script_repository.html#display-volume-using-volume-rendering
     logic = slicer.modules.volumerendering.logic()
-    volumeNode = slicer.mrmlScene.GetNodeByID('vtkMRMLScalarVolumeNode1')
+    # This "if-else" is to select the second volume to skip the Topogram, which is the first
+    # When there are two volumes, the topogram is the first and the full skull is the second
+    if len(loadedNodeIDs) == 2:
+    	volumeNode = slicer.mrmlScene.GetNodeByID('vtkMRMLScalarVolumeNode2')
+    else:
+      volumeNode = slicer.mrmlScene.GetNodeByID('vtkMRMLScalarVolumeNode1')
 
     # 3. Resample the volume
     # https://discourse.slicer.org/t/segment-a-resampled-volume/11938/4
